@@ -140,6 +140,12 @@ async function getValue<T>(output: pulumi.Output<T>) {
     }
   })
 
+  const subnet_grp = new aws.rds.SubnetGroup(`${project_name.toLowerCase()}-sn-grp`, {
+    name: `${project_name}-subnet_group`,
+    subnetIds: await getValue(vpc.privateSubnetIds),
+    tags: tags
+  })
+
   const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
     engine: "mysql",
     instanceClass: "db.t3.micro",
@@ -150,7 +156,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     storageType: "gp2",
     username: 'sa',
     password: process.env.RDS_PASSWORD,
-    dbSubnetGroupName: sg_rds.name,
+    dbSubnetGroupName: subnet_grp.name,
     tags: tags
   })
 
