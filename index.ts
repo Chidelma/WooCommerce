@@ -102,8 +102,8 @@ async function getValue<T>(output: pulumi.Output<T>) {
     vpcId: vpc.vpcId,
     ingress: [
       {
-        fromPort: 1433,
-        toPort: 1433,
+        fromPort: 3306,
+        toPort: 3306,
         protocol: "tcp",
         cidrBlocks: ["0.0.0.0/0"]
       }
@@ -169,7 +169,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
         cpu: 512,
         environment: [{
           name: 'ConnectionString',
-          value: rds_instance.address
+          value: `server=${rds_instance.endpoint};uid=${rds_instance.username};pwd=${rds_instance.password};database=test`
         }],
         portMappings: [
           {
