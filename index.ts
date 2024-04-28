@@ -45,8 +45,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
   
   const vpc = new awsx.ec2.Vpc(`${project_name}-vpc`, {
     cidrBlock: "10.0.0.0/20",
-    tags: tags,
-    instanceTenancy: "default",
+    tags: tags
   });
 
   const sg_web = new aws.ec2.SecurityGroup(`${project_name}-sg-web`, {
