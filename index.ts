@@ -130,7 +130,7 @@ const api_lb = new awsx.lb.ApplicationLoadBalancer(`${project_name}-api-lb`, {
   }
 })
 
-const rds_instance = new aws.rds.Instance(`${project_name}-rds`, {
+const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
   engine: "mysql",
   instanceClass: "t3.micro",
   allocatedStorage: 20,
