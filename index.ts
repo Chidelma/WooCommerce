@@ -44,7 +44,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
   })
   
   const vpc = new awsx.ec2.Vpc(`${project_name}-vpc`, {
-    cidrBlock: "10.0.0.0/16",
+    cidrBlock: "10.0.0.0/15",
     tags: tags,
     instanceTenancy: "default",
   });
@@ -125,14 +125,14 @@ async function getValue<T>(output: pulumi.Output<T>) {
 
   const web_lb = new awsx.lb.ApplicationLoadBalancer(`${project_name}-web-lb`, {
     tags: tags,
-    securityGroups: [sg_web.id],
+    securityGroups: [await getValue(sg_web.id)],
     subnetIds: vpc.publicSubnetIds
   })
 
   const api_lb = new awsx.lb.ApplicationLoadBalancer(`${project_name}-api-lb`, {
     tags: tags,
     internal: true,
-    securityGroups: [sg_api.id],
+    securityGroups: [await getValue(sg_api.id)],
     subnetIds: vpc.privateSubnetIds,
     defaultTargetGroup: {
       healthCheck: {
@@ -203,7 +203,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     networkConfiguration: {
       assignPublicIp: true,
       subnets: vpc.publicSubnetIds,
-      securityGroups: [sg_web.id]
+      securityGroups: [await getValue(sg_web.id)]
     },
     cluster: cluster.arn,
     desiredCount: 2,
@@ -219,7 +219,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
   const api_srv = new awsx.ecs.FargateService(`${project_name}-api-srv`, {
     networkConfiguration: {
       subnets: vpc.privateSubnetIds,
-      securityGroups: [sg_api.id],
+      securityGroups: [await getValue(sg_api.id)],
       assignPublicIp: false
     },
     cluster: cluster.arn,
