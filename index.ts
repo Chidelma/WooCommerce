@@ -143,7 +143,7 @@ const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
   engine: "mysql",
   instanceClass: "db.t3.micro",
   allocatedStorage: 20,
-  vpcSecurityGroupIds: [await getValue(sg_rds.id)],
+  vpcSecurityGroupIds: [sg_rds.id],
   multiAz: true,
   publiclyAccessible: false,
   storageType: "gp2",
@@ -249,5 +249,3 @@ const lb_assoc = new aws.wafv2.WebAclAssociation(`${project_name}-assoc`, {
 })
 
 export const ecsTaskUrl = pulumi.interpolate`http://${web_lb.loadBalancer.dnsName}`
-
-export {}
