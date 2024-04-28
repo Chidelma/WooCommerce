@@ -249,3 +249,5 @@ const lb_assoc = new aws.wafv2.WebAclAssociation(`${project_name}-assoc`, {
 })
 
 export const ecsTaskUrl = pulumi.interpolate`http://${web_lb.loadBalancer.dnsName}`
+
+export {}
