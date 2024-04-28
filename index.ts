@@ -150,6 +150,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     storageType: "gp2",
     username: 'sa',
     password: process.env.RDS_PASSWORD,
+    dbSubnetGroupName: sg_rds.name,
     tags: tags
   })
 
