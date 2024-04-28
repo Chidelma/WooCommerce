@@ -2,7 +2,7 @@
     "compilerOptions": {
         "strict": true,
         "outDir": "bin",
-        "target": "es2017",
+        "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "node",
         "sourceMap": true,
@@ -10,9 +10,8 @@
         "pretty": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitReturns": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "types": ["bun-types", "node"]
     },
-    "files": [
-        "index.ts"
-    ]
+    "exclude": ["node_modules"]
 }
