@@ -10,6 +10,7 @@ const tags = {
   Name: `${project_name}`
 }
 
+// Promise to retrieve property values of resources
 async function getValue<T>(output: pulumi.Output<T>) {
 
   return new Promise((resolve: (value: T) => void) => {
@@ -43,11 +44,13 @@ async function getValue<T>(output: pulumi.Output<T>) {
       path: './infra-api'
   })
   
+  // Create a VPC for all Woo-Commerce resources
   const vpc = new awsx.ec2.Vpc(`${project_name}-vpc`, {
     cidrBlock: "10.0.0.0/20",
     tags: tags
   });
 
+  // Security Group to only allow incoming request through port 5000 for hosting app
   const sg_web = new aws.ec2.SecurityGroup(`${project_name}-sg-web`, {
       vpcId: vpc.vpcId,
       ingress: [
@@ -73,6 +76,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
       tags: tags
   });
 
+  // Security Group to only allow incoming request through ports 5000 and 80 for business app
   const sg_api = new aws.ec2.SecurityGroup(`${project_name}-sg-api`, {
     vpcId: vpc.vpcId,
     ingress: [
@@ -98,6 +102,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     tags: tags
   })
 
+  // Security Group to only allow incoming request through port 3306 for Database
   const sg_rds = new aws.ec2.SecurityGroup(`${project_name}-sg-rds`, {
     vpcId: vpc.vpcId,
     ingress: [
@@ -122,12 +127,14 @@ async function getValue<T>(output: pulumi.Output<T>) {
     tags: tags
   })
 
+  // Create a load balancer for the hosting app
   const web_lb = new awsx.lb.ApplicationLoadBalancer(`${project_name}-web-lb`, {
     tags: tags,
     securityGroups: [await getValue(sg_web.id)],
     subnetIds: vpc.publicSubnetIds
   })
 
+  // Create a load balancer for the business app with health check for endpoint
   const api_lb = new awsx.lb.ApplicationLoadBalancer(`${project_name}-api-lb`, {
     tags: tags,
     internal: true,
@@ -140,12 +147,14 @@ async function getValue<T>(output: pulumi.Output<T>) {
     }
   })
 
+  // Subnet Group required for RDS instance to place in the correct Subnets
   const subnet_grp = new aws.rds.SubnetGroup(`${project_name.toLowerCase()}-sn-grp`, {
     name: `${project_name.toLocaleLowerCase()}-subnet_group`,
     subnetIds: await getValue(vpc.privateSubnetIds),
     tags: tags
   })
 
+  // Creation of RDS Instance 
   const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
     engine: "mysql",
     instanceClass: "db.t3.micro",
@@ -160,6 +169,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     tags: tags
   })
 
+  // Task definition for Business app using Fargate
   const api_td = new awsx.ecs.FargateTaskDefinition(`${project_name}-api-td`, {
     tags: tags,
     containers: {
@@ -182,6 +192,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     }
   })
 
+  // Task definition for hosting app using Fargate
   const web_td = new awsx.ecs.FargateTaskDefinition(`${project_name}-web-td`, {
     tags: tags,
     containers: {
@@ -239,6 +250,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
     }]
   })
 
+  // Apply WAF to load balancer for hosting app
   const lb_acl = new aws.wafv2.WebAcl(`${project_name}-acl`, {
     scope: "REGIONAL",
     defaultAction: {
@@ -255,6 +267,4 @@ async function getValue<T>(output: pulumi.Output<T>) {
     resourceArn: web_lb.loadBalancer.arn,
     webAclArn: lb_acl.arn
   })
-
-  //export const ecsTaskUrl = pulumi.interpolate`http://${web_lb.loadBalancer.dnsName}`
 })()
