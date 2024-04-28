@@ -139,6 +139,7 @@ const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
   publiclyAccessible: false,
   storageType: "gp2",
   username: 'sa',
+  password: process.env.RDS_PASSWORD,
   tags: tags
 })
 
