@@ -138,6 +138,7 @@ const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
   multiAz: true,
   publiclyAccessible: false,
   storageType: "gp2",
+  username: 'sa',
   tags: tags
 })
 
