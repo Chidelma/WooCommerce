@@ -10,6 +10,15 @@ const tags = {
   Name: `${project_name}`
 }
 
+async function getValue<T>(output: pulumi.Output<T>) {
+
+  return new Promise((resolve: (value: T) => void) => {
+      output.apply(out => {
+          resolve(out)
+      })
+  })
+}
+
 // Create a repository to store image for web
 const repoWeb = new awsx.ecr.Repository(`${project_name}-web`, {
   tags: tags
@@ -134,7 +143,7 @@ const rds_instance = new aws.rds.Instance(`${project_name.toLowerCase()}-rds`, {
   engine: "mysql",
   instanceClass: "db.t3.micro",
   allocatedStorage: 20,
-  vpcSecurityGroupIds: [sg_rds.id],
+  vpcSecurityGroupIds: [await getValue(sg_rds.id)],
   multiAz: true,
   publiclyAccessible: false,
   storageType: "gp2",
