@@ -141,7 +141,7 @@ async function getValue<T>(output: pulumi.Output<T>) {
   })
 
   const subnet_grp = new aws.rds.SubnetGroup(`${project_name.toLowerCase()}-sn-grp`, {
-    name: `${project_name}-subnet_group`,
+    name: `${project_name.toLocaleLowerCase()}-subnet_group`,
     subnetIds: await getValue(vpc.privateSubnetIds),
     tags: tags
   })
